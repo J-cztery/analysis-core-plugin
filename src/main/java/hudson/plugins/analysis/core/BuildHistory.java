@@ -1,14 +1,17 @@
 package hudson.plugins.analysis.core;
 
-import javax.annotation.CheckForNull;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import hudson.model.AbstractBuild;
+import javax.annotation.CheckForNull;
+
 import hudson.model.Result;
+import hudson.model.AbstractBuild;
+
 import hudson.plugins.analysis.util.model.AnnotationContainer;
 import hudson.plugins.analysis.util.model.DefaultAnnotationContainer;
 import hudson.plugins.analysis.util.model.FileAnnotation;
@@ -26,12 +29,52 @@ public class BuildHistory {
     private final Class<? extends ResultAction<? extends BuildResult>> type;
     /** Determines whether only stable builds should be used as reference builds or not. */
     private final boolean useStableBuildAsReference;
+
     /**
      * Determines if the previous build should always be used as the reference build.
      * @since 1.66
      */
     private final boolean usePreviousBuildAsReference;
-
+    /** parameter name used to check if the build should be included in the result set
+     * @since //TODO: JTO
+     */
+    private final String parameterName;
+    /** parameter value used to check if the build should be included in the result set
+     * @since //TODO: JTO
+     */
+    private final String parameterValue;
+    /**
+     * Creates a new instance of {@link BuildHistory}.
+     *
+     * @param baseline
+     *            the build to start the history from
+     * @param type
+     *            type of the action that contains the build results
+     * @param usePreviousBuildAsReference
+     *            determines whether the previous build should always be used
+     *            as the reference build
+     * @param useStableBuildAsReference
+     *            determines whether only stable builds should be used as
+     *            reference builds or not
+     * @param parameterName
+     *            parameter name used to check if the build should be included in the result set
+     * @param parameterValue
+     *            parameter value used to check if the build should be included in the result set
+     * @since //TODO: JTO
+     */
+     public BuildHistory(final AbstractBuild<?, ?> baseline,
+            final Class<? extends ResultAction<? extends BuildResult>> type,
+            final boolean usePreviousBuildAsReference,
+            final boolean useStableBuildAsReference,
+            final String parameterName,
+            final String parameterValue) {
+        this.baseline = baseline;
+        this.type = type;
+        this.usePreviousBuildAsReference = usePreviousBuildAsReference;
+        this.useStableBuildAsReference = useStableBuildAsReference;
+        this.parameterName = parameterName;
+        this.parameterValue = parameterValue;
+     }
     /**
      * Creates a new instance of {@link BuildHistory}.
      *
@@ -47,16 +90,13 @@ public class BuildHistory {
      *            reference builds or not
      * @since 1.66
      */
-    public BuildHistory(final AbstractBuild<?, ?> baseline,
+    /*public BuildHistory(final AbstractBuild<?, ?> baseline,
             final Class<? extends ResultAction<? extends BuildResult>> type,
             final boolean usePreviousBuildAsReference,
-            final boolean useStableBuildAsReference) {
-        this.baseline = baseline;
-        this.type = type;
-        this.usePreviousBuildAsReference = usePreviousBuildAsReference;
-        this.useStableBuildAsReference = useStableBuildAsReference;
-    }
-
+            final boolean useStableBuildAsReference
+            ) {
+       this(baseline, type, usePreviousBuildAsReference, useStableBuildAsReference, null, null);
+    }*/
     /**
      * Determines whether only stable builds should be used as reference builds
      * or not.
@@ -75,7 +115,12 @@ public class BuildHistory {
     public boolean usePreviousBuildAsStable() {
         return usePreviousBuildAsReference;
     }
-
+    public String getParameterName(){
+        return parameterName;
+    }
+    public String getParameterValue(){
+        return parameterValue;
+    }
     /**
      * Returns the time of the baseline build.
      *
@@ -197,9 +242,13 @@ public class BuildHistory {
         if (result == null) {
             return false;
         }
-        if (mustBeStable) {
-            return result == Result.SUCCESS;
+        if (!hasValidParameterValue(build)){
+            return false;
         }
+        if (mustBeStable) {
+           return result!=Result.SUCCESS;
+        }
+
         return result.isBetterThan(Result.FAILURE) || isPluginCauseForFailure(action);
     }
 
@@ -210,6 +259,22 @@ public class BuildHistory {
         else {
             return action.getResult().getPluginResult().isWorseOrEqualTo(Result.FAILURE);
         }
+    }
+
+    private boolean hasValidParameterValue(final AbstractBuild<?, ?> build){
+        if (parameterName == null){
+            return true;
+        }
+        Map<String, String> vars = build.getBuildVariables();
+        if(vars.containsKey(parameterName)){
+            if (vars.get(parameterName).equals(parameterValue)) {
+                System.out.println(String.format("ParameterValue %s equals %s",parameterName, parameterValue));
+                return true;
+            }else{
+                System.out.println(String.format("ParameterValue %s equals %s", parameterName, vars.get(parameterName)));
+            }
+        }
+        return false;
     }
 
     /**
@@ -329,11 +394,11 @@ public class BuildHistory {
      * @since 1.47
      * @deprecated use {@link #BuildHistory(AbstractBuild, Class, boolean, boolean)}
      */
-    @Deprecated
+    /*@Deprecated
     public BuildHistory(final AbstractBuild<?, ?> baseline, final Class<? extends ResultAction<? extends BuildResult>> type,
             final boolean useStableBuildAsReference) {
         this(baseline, type, false, useStableBuildAsReference);
-    }
+    }*/
 
     /**
      * Creates a new instance of {@link BuildHistory}.
@@ -344,9 +409,9 @@ public class BuildHistory {
      *            type of the action that contains the build results
      * @deprecated use {@link #BuildHistory(AbstractBuild, Class, boolean, boolean)}
      */
-    @Deprecated
+    /*@Deprecated
     public BuildHistory(final AbstractBuild<?, ?> baseline, final Class<? extends ResultAction<? extends BuildResult>> type) {
         this(baseline, type, false);
-    }
+    }*/
 }
 

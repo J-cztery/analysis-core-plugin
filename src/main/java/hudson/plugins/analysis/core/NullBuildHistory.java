@@ -22,7 +22,8 @@ public class NullBuildHistory extends BuildHistory {
      * Creates a new instance of {@link NullBuildHistory}.
      */
     public NullBuildHistory() {
-        super(null, null, false);
+        //TODO: JTO log deprecated call
+        super(null, null, false, false, null, null);
     }
 
     @Override

@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jenkins.model.Jenkins;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -24,14 +26,14 @@ import org.kohsuke.stapler.export.ExportedBean;
 
 import com.thoughtworks.xstream.XStream;
 
-import jenkins.model.Jenkins;
-
 import hudson.XmlFile;
+
+import hudson.model.ModelObject;
+import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.Api;
 import hudson.model.Hudson;
-import hudson.model.ModelObject;
-import hudson.model.Result;
+
 import hudson.plugins.analysis.Messages;
 import hudson.plugins.analysis.util.HtmlPrinter;
 import hudson.plugins.analysis.util.PluginLogger;
@@ -66,6 +68,7 @@ public abstract class BuildResult implements ModelObject, Serializable, Annotati
 
     private transient Object projectLock = new Object();
 
+
     /**
      * Returns the number of days for the specified number of milliseconds.
      *
@@ -85,7 +88,8 @@ public abstract class BuildResult implements ModelObject, Serializable, Annotati
     private int numberOfModules;
     /** The default encoding to be used when reading and parsing files. */
     private String defaultEncoding;
-
+    protected String parameterName;
+    protected String parameterValue;
     /** The project containing the annotations. */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings("Se")
     private transient WeakReference<JavaProject> project;
@@ -214,6 +218,8 @@ public abstract class BuildResult implements ModelObject, Serializable, Annotati
      */
     protected BuildResult(final AbstractBuild<?, ?> build, final BuildHistory history,
             final ParserResult result, final String defaultEncoding) {
+        parameterName =  history.getParameterName();
+        parameterValue = history.getParameterValue();
         initialize(history, build, defaultEncoding, result);
     }
 
@@ -225,7 +231,9 @@ public abstract class BuildResult implements ModelObject, Serializable, Annotati
      * @return the history
      */
     protected BuildHistory createHistory(final AbstractBuild<?, ?> build) {
-        return new BuildHistory(build, getResultActionType(), false);
+        //TODO: JTO log deprecated call.
+        //TODO: the other two flags need to be persisted as well.
+        return new BuildHistory(build, getResultActionType(), false, false, parameterName, parameterValue);
     }
 
     /**
@@ -246,7 +254,24 @@ public abstract class BuildResult implements ModelObject, Serializable, Annotati
     public boolean usePreviousBuildAsStable() {
         return history.usePreviousBuildAsStable();
     }
+    public boolean passesFilteringByParameter(){
 
+        if (parameterName == null){
+            return true;
+        }
+
+        Map<String, String> vars = owner.getBuildVariables();
+        if(vars.containsKey(parameterName)){
+            if (vars.get(parameterName).equals(parameterValue)) {
+                System.out.println(String.format("passesFilteringByParameter() ParameterValue %s equals %s",parameterName, parameterValue));
+                return true;
+            }else{
+                System.out.println(String.format("passesFilteringByParameter() ParameterValue %s equals %s", parameterName, vars.get(parameterName)));
+            }
+        }
+        return false;
+
+    }
     /**
      * Initializes this new instance of {@link BuildResult}.
      *
@@ -263,6 +288,8 @@ public abstract class BuildResult implements ModelObject, Serializable, Annotati
     private void initialize(final BuildHistory history, final AbstractBuild<?, ?> build, final String defaultEncoding, // NOCHECKSTYLE
             final ParserResult result) {
         this.history = history;
+        parameterName = history.getParameterName();
+        parameterValue = history.getParameterValue();
         owner = build;
         this.defaultEncoding = defaultEncoding;
 
@@ -1539,9 +1566,12 @@ public abstract class BuildResult implements ModelObject, Serializable, Annotati
      */
     @Deprecated
     @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
-    public BuildResult(final AbstractBuild<?, ?> build, final String defaultEncoding, final ParserResult result) {
+    public BuildResult(final AbstractBuild<?, ?> build, final String defaultEncoding, final ParserResult result, final String parameterName, final String parameterValue) {
+        this.parameterName = parameterName;
+        this.parameterValue = parameterValue;
         initialize(createHistory(build), build, defaultEncoding, result);
         serializeAnnotations(result.getAnnotations());
+
     }
 
     // Backward compatibility. Do not remove.

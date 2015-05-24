@@ -1,6 +1,5 @@
 package hudson.plugins.analysis.graph;
 
-import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,18 +7,22 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletException;
+
+import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import com.google.common.collect.Lists;
 
-import net.sf.json.JSONObject;
-
-import hudson.model.AbstractProject;
 import hudson.model.ModelObject;
+import hudson.model.AbstractProject;
+
 import hudson.plugins.analysis.core.AbstractHealthDescriptor;
 import hudson.plugins.analysis.core.BuildHistory;
+
 import hudson.util.Graph;
 
 /**
@@ -325,6 +328,22 @@ public abstract class GraphConfigurationView implements ModelObject {
         return getStringValue(getDayCount());
     }
 
+    /**
+     * Returns the parameter name to consider.
+     *
+     * @return the parameter name to consider.
+     */
+    public String getParameterName() {
+        return configuration.getParameterName();
+    }
+    /**
+     * Returns the parameter value to consider.
+     *
+     * @return the parameter value to consider.
+     */
+    public String getParameterValue() {
+        return configuration.getParameterValue();
+    }
     /**
      * Returns the type of the graph.
      *

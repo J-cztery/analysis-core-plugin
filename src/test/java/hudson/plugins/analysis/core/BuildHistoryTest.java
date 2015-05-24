@@ -1,14 +1,15 @@
 package hudson.plugins.analysis.core;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import java.util.NoSuchElementException;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import hudson.model.AbstractBuild;
 import hudson.model.Result;
+import hudson.model.AbstractBuild;
+
 import hudson.plugins.analysis.util.model.AnnotationContainer;
 
 /**
@@ -242,9 +243,9 @@ public class BuildHistoryTest {
         createSuccessfulResult(referenceBuild);
         createFailureResult(previous);
 
-        BuildHistory referenceHistory = new BuildHistory(baseline, TestResultAction.class, false, false);
+        BuildHistory referenceHistory = new BuildHistory(baseline, TestResultAction.class, false, false, null, null);
         assertSame("First build is not reference build", referenceBuild, referenceHistory.getReferenceBuild());
-        BuildHistory previousHistory = new BuildHistory(baseline, TestResultAction.class, true, false);
+        BuildHistory previousHistory = new BuildHistory(baseline, TestResultAction.class, true, false, null, null);
         assertSame("Previous build is not reference build", previous, previousHistory.getReferenceBuild());
     }
 
@@ -286,11 +287,11 @@ public class BuildHistoryTest {
      * @return the build history under test
      */
     private BuildHistory createHistory(final AbstractBuild<?, ?> baseline) {
-        return new BuildHistory(baseline, TestResultAction.class, false, false);
+        return new BuildHistory(baseline, TestResultAction.class, false, false, null, null);
     }
 
     private BuildHistory createStableBuildReferenceHistory(final AbstractBuild<?, ?> baseline) {
-        return new BuildHistory(baseline, TestResultAction.class, false,  true);
+        return new BuildHistory(baseline, TestResultAction.class, false,  true, null, null);
     }
 
     /**

@@ -1,31 +1,35 @@
 package hudson.plugins.analysis.core; // NOPMD
 
-import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
+
+import javax.annotation.CheckForNull;
 
 import org.apache.commons.lang.StringUtils;
 
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.matrix.MatrixAggregatable;
-import hudson.model.AbstractBuild;
+
 import hudson.model.BuildListener;
-import hudson.model.Project;
 import hudson.model.Result;
+import hudson.model.AbstractBuild;
+import hudson.model.Project;
+
 import hudson.plugins.analysis.util.EncodingValidator;
 import hudson.plugins.analysis.util.Files;
 import hudson.plugins.analysis.util.LoggerFactory;
 import hudson.plugins.analysis.util.PluginLogger;
 import hudson.plugins.analysis.util.model.FileAnnotation;
 import hudson.plugins.analysis.util.model.Priority;
+
 import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Builder;
-import hudson.tasks.Maven;
 import hudson.tasks.Recorder;
+import hudson.tasks.Maven;
 
 /**
  * A base class for publishers with the following two characteristics:
@@ -77,6 +81,18 @@ public abstract class HealthAwareRecorder extends Recorder implements HealthDesc
      * @since 1.48
      */
     private final boolean useStableBuildAsReference;
+    /**
+     * Used to filter the builds. Reference build must have this parameter set.
+     *
+     * @since //TODO: JTO
+     */
+    private final String parameterName;
+    /**
+     * Used to filter the builds. Reference build must have this parameter value set.
+     *
+     * @since //TODO: JTO
+     */
+    private final String parameterValue;
     /**
      * Determines whether the absolute annotations delta or the actual
      * annotations set difference should be used to evaluate the build
@@ -185,6 +201,8 @@ public abstract class HealthAwareRecorder extends Recorder implements HealthDesc
      *            workspace for matching files.
      * @param pluginName
      *            the name of the plug-in
+     * @param parameterName
+     * @param parameterValue
      */
     // CHECKSTYLE:OFF
     @SuppressWarnings("PMD")
@@ -200,7 +218,8 @@ public abstract class HealthAwareRecorder extends Recorder implements HealthDesc
             final boolean canRunOnFailed, final boolean usePreviousBuildAsReference,
             final boolean useStableBuildAsReference,
             final boolean shouldDetectModules, final boolean canComputeNew,
-            final boolean canResolveRelativePaths, final String pluginName) {
+            final boolean canResolveRelativePaths, final String pluginName,
+            final String parameterName, final String parameterValue) {
         super();
         this.healthy = healthy;
         this.unHealthy = unHealthy;
@@ -231,6 +250,8 @@ public abstract class HealthAwareRecorder extends Recorder implements HealthDesc
         this.canRunOnFailed = canRunOnFailed;
         this.usePreviousBuildAsReference = usePreviousBuildAsReference;
         this.useStableBuildAsReference = useStableBuildAsReference;
+        this.parameterName = parameterName;
+        this.parameterValue = parameterValue;
         this.shouldDetectModules = shouldDetectModules;
         this.pluginName = "[" + pluginName + "] ";
     }
@@ -308,7 +329,22 @@ public abstract class HealthAwareRecorder extends Recorder implements HealthDesc
     public boolean useOnlyStableBuildsAsReference() {
         return getUseStableBuildAsReference();
     }
-
+    /**
+     * Used to filter builds that should be used as reference builds
+     *
+     * @return parameterName the build has to have to be included
+     */
+    public String getParameterName(){
+        return parameterName;
+    }
+    /**
+     * Used to filter builds that should be used as reference builds
+     *
+     * @return parameterValue the build has to have to be included
+     */
+    public String getParameterValue(){
+        return parameterValue;
+    }
     /**
      * Initializes new fields that are not serialized yet.
      *
@@ -641,7 +677,7 @@ public abstract class HealthAwareRecorder extends Recorder implements HealthDesc
                 failedTotalLow, failedNewAll, failedNewHigh, failedNewNormal,
                 failedNewLow, canRunOnFailed, false, useStableBuildAsReference,
                 shouldDetectModules, canComputeNew, canResolveRelativePaths,
-                pluginName);
+                pluginName, null, null);
     }
 
     /** Backward compatibility. @deprecated */
@@ -665,11 +701,14 @@ public abstract class HealthAwareRecorder extends Recorder implements HealthDesc
         this.defaultEncoding = defaultEncoding;
         this.useDeltaValues = useDeltaValues;
         this.canRunOnFailed = canRunOnFailed;
-        this.usePreviousBuildAsReference = false;
+        usePreviousBuildAsReference = false;
         useStableBuildAsReference = false;
         dontComputeNew = false;
         shouldDetectModules = false;
         this.pluginName = "[" + pluginName + "] ";
+        //TODO: JTO
+        parameterName = null;
+        parameterValue = null;
     }
 
     /** Backward compatibility. @deprecated */
@@ -693,6 +732,30 @@ public abstract class HealthAwareRecorder extends Recorder implements HealthDesc
                 failedTotalAll, failedTotalHigh, failedTotalNormal, failedTotalLow,
                 failedNewAll, failedNewHigh, failedNewNormal, failedNewLow,
                 canRunOnFailed, false, shouldDetectModules, canComputeNew, canResolveRelativePaths, pluginName);
+    }
+    /** Backward compatibility. @deprecated */
+    @SuppressWarnings({"PMD","javadoc"})
+    @Deprecated
+    public HealthAwareRecorder(final String healthy, final String unHealthy,
+            final String thresholdLimit, final String defaultEncoding,
+            final boolean useDeltaValues, final String unstableTotalAll,
+            final String unstableTotalHigh, final String unstableTotalNormal,
+            final String unstableTotalLow, final String unstableNewAll,
+            final String unstableNewHigh, final String unstableNewNormal,
+            final String unstableNewLow, final String failedTotalAll, final String failedTotalHigh,
+            final String failedTotalNormal, final String failedTotalLow, final String failedNewAll,
+            final String failedNewHigh, final String failedNewNormal, final String failedNewLow,
+            final boolean canRunOnFailed, final boolean usePreviousBuildAsReference,
+            final boolean useStableBuildAsReference,
+            final boolean shouldDetectModules, final boolean canComputeNew,
+            final boolean canResolveRelativePaths, final String pluginName) {
+        this(healthy, unHealthy, thresholdLimit, defaultEncoding, useDeltaValues,
+                unstableTotalAll, unstableTotalHigh, unstableTotalNormal, unstableTotalLow,
+                unstableNewAll, unstableNewHigh, unstableNewNormal, unstableNewLow,
+                failedTotalAll, failedTotalHigh, failedTotalNormal, failedTotalLow,
+                failedNewAll, failedNewHigh, failedNewNormal, failedNewLow,
+                canRunOnFailed, usePreviousBuildAsReference,useStableBuildAsReference, shouldDetectModules,
+                canComputeNew, canResolveRelativePaths, pluginName, null, null);
     }
     // CHECKSTYLE:OFF
 }

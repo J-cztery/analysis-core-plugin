@@ -212,9 +212,9 @@ public abstract class CategoryBuildResultGraph extends BuildResultGraph {
             if (isBuildTooOld(configuration, current)) {
                 break;
             }
-
-            valuesPerBuild.put(current.getOwner(), computeSeries(current));
-
+            if (current.passesFilteringByParameter()){
+                valuesPerBuild.put(current.getOwner(), computeSeries(current));
+            }
             if (current.hasPreviousResult()) {
                 current = current.getPreviousResult();
                 if (current == null) {

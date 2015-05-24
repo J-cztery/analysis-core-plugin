@@ -20,6 +20,14 @@
     <f:entry title="${%name.days}" description="${%description.dayCount}" field="dayCountString">
       <f:textbox/>
     </f:entry>
+    
+    <f:entry title="${%name.parameterName}" description="${%description.parameterName}">
+      <f:textbox name="parameterName" value="${it.parameterName}" />
+    </f:entry>
+    
+    <f:entry title="${%name.parameterValue}" description="${%description.parameterValue}">
+      <f:textbox name="parameterValue" value="${it.parameterValue}" />
+    </f:entry>
 
     <st:include it="${descriptor}" page="local-config.jelly" optional="true"/>
 </j:jelly>

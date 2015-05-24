@@ -1,10 +1,13 @@
 package hudson.plugins.analysis.core;
 
-import javax.annotation.CheckForNull;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.annotation.CheckForNull;
+
+import jenkins.model.Jenkins;
 
 import org.jvnet.localizer.Localizable;
 import org.kohsuke.stapler.Stapler;
@@ -16,25 +19,26 @@ import org.kohsuke.stapler.export.ExportedBean;
 import com.google.common.collect.Lists;
 
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
-import jenkins.model.Jenkins;
 
+import hudson.model.Action;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.model.Action;
 import hudson.model.Api;
+
 import hudson.plugins.analysis.graph.BuildResultGraph;
 import hudson.plugins.analysis.graph.DefaultGraphConfigurationView;
 import hudson.plugins.analysis.graph.DifferenceGraph;
 import hudson.plugins.analysis.graph.EmptyGraph;
 import hudson.plugins.analysis.graph.GraphConfiguration;
-import hudson.plugins.analysis.graph.GraphConfigurationView;
 import hudson.plugins.analysis.graph.HealthGraph;
 import hudson.plugins.analysis.graph.NewVersusFixedGraph;
 import hudson.plugins.analysis.graph.NullGraph;
 import hudson.plugins.analysis.graph.PriorityGraph;
 import hudson.plugins.analysis.graph.TotalsGraph;
-import hudson.plugins.analysis.graph.TrendDetails;
 import hudson.plugins.analysis.graph.UserGraphConfigurationView;
+import hudson.plugins.analysis.graph.GraphConfigurationView;
+import hudson.plugins.analysis.graph.TrendDetails;
+
 import hudson.util.Graph;
 
 /**
@@ -65,7 +69,8 @@ public abstract class AbstractProjectAction<T extends ResultAction<?>> implement
     private final Localizable name;
     /** Human readable title of the trend graph. */
     private final Localizable trendName;
-
+    private final String parameterName;
+    private final String parameterValue;
     /**
      * Creates a new instance of {@link AbstractProjectAction}.
      *
@@ -85,7 +90,8 @@ public abstract class AbstractProjectAction<T extends ResultAction<?>> implement
      *            the URL of the associated build results
      */
     public AbstractProjectAction(final AbstractProject<?, ?> project, final Class<? extends T> resultActionType,
-            final Localizable name, final Localizable trendName, final String pluginUrl, final String iconUrl, final String resultUrl) {
+            final Localizable name, final Localizable trendName, final String pluginUrl, final String iconUrl, final String resultUrl,
+            final String parameterName, final String parameterValue) {
         this.project = project;
         this.resultActionType = resultActionType;
         this.name = name;
@@ -93,6 +99,8 @@ public abstract class AbstractProjectAction<T extends ResultAction<?>> implement
         this.pluginUrl = pluginUrl;
         this.iconUrl = iconUrl;
         this.resultUrl = resultUrl;
+        this.parameterName = parameterName;
+        this.parameterValue = parameterValue;
     }
 
     /**
@@ -136,7 +144,12 @@ public abstract class AbstractProjectAction<T extends ResultAction<?>> implement
     public final AbstractProject<?, ?> getProject() {
         return project;
     }
-
+    public final String getParameterName(){
+        return parameterName;
+    }
+    public final String getParameterValue(){
+        return parameterValue;
+    }
     /**
      * Returns the graph configuration view for this project. If the requested
      * link is neither the user graph configuration nor the default
@@ -292,7 +305,8 @@ public abstract class AbstractProjectAction<T extends ResultAction<?>> implement
             return new NullBuildHistory();
         }
         else {
-            return new BuildHistory(lastFinishedBuild, resultActionType, false);
+            //TODO: JTO deprecated call.
+            return new BuildHistory(lastFinishedBuild, resultActionType, false, false, parameterName, parameterValue);
         }
     }
 
@@ -448,6 +462,6 @@ public abstract class AbstractProjectAction<T extends ResultAction<?>> implement
      */
     @Deprecated
     public AbstractProjectAction(final AbstractProject<?, ?> project, final Class<? extends T> resultActionType, final PluginDescriptor plugin) {
-        this(project, resultActionType, null, null, plugin.getPluginName(), plugin.getIconUrl(), plugin.getPluginResultUrlName());
+        this(project, resultActionType, null, null, plugin.getPluginName(), plugin.getIconUrl(), plugin.getPluginResultUrlName(), null, null);
     }
 }
