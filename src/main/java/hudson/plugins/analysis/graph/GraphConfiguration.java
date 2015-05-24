@@ -367,9 +367,16 @@ public class GraphConfiguration  {
         graphType = graphId2Graph.get(grapyTypeString);
 
         useBuildDate = value.getBoolean("useBuildDateAsDomain");
-
-        parameterValue = value.getString("parameterValue");
-        parameterName = value.getString("parameterName");
+        if (value.has("parameterValue")){
+            parameterValue = value.getString("parameterValue");
+        }else{
+            parameterValue = null;
+        }
+        if (value.has("parameterName")){
+            parameterName = value.getString("parameterName");
+        }else{
+            parameterName = null;
+        }
 
         boolean isLocalValid = initializeLocal(value);
 
@@ -837,18 +844,20 @@ public class GraphConfiguration  {
             if (other.parameterName!=null){
                 return false;
             }
-        }
-        if (parameterName.equals(other.parameterName)){
-            return false;
+        }else{
+            if (parameterName.equals(other.parameterName)){
+                return false;
+            }
         }
 
         if (parameterValue == null){
             if (other.parameterValue!=null){
                 return false;
             }
-        }
-        if (parameterValue.equals(other.parameterValue)){
-            return false;
+        }else{
+            if (parameterValue.equals(other.parameterValue)){
+                return false;
+            }
         }
         return true;
     }
