@@ -178,6 +178,10 @@ public class GraphConfiguration  {
      *            the value of the parameter used to filter results for the graph
      * @return <code>true</code> is the initialization was successful,
      *         <code>false</code> otherwise
+<<<<<<< HEAD
+=======
+     * @since 1.73
+>>>>>>> 4787a01... Add possibility to configure graph by parameter value (cummulative commit)
      */
     @SuppressWarnings("hiding")
     public boolean initializeFrom(final int width, final int height, final int dayCount, final String parameterName, final String parameterValue) { // NOCHECKSTYLE
@@ -222,6 +226,10 @@ public class GraphConfiguration  {
      *            value of parameter by which builds will be filtered for the graph
      * @return <code>true</code> is the initialization was successful,
      *         <code>false</code> otherwise
+<<<<<<< HEAD
+=======
+     * @since 1.73
+>>>>>>> 4787a01... Add possibility to configure graph by parameter value (cummulative commit)
      */
     @SuppressWarnings("hiding")
     public boolean initializeFrom(final String width, final String height, final String dayCountString, final String parameterName, final String parameterValue) { // NOCHECKSTYLE
@@ -290,7 +298,11 @@ public class GraphConfiguration  {
             else {
                 return false;
             }
+<<<<<<< HEAD
             if (values.length>7){
+=======
+            if (values.length > 7) {
+>>>>>>> 4787a01... Add possibility to configure graph by parameter value (cummulative commit)
                 parameterName = values[6];
                 parameterValue = values[7];
             }
@@ -367,6 +379,7 @@ public class GraphConfiguration  {
         graphType = graphId2Graph.get(grapyTypeString);
 
         useBuildDate = value.getBoolean("useBuildDateAsDomain");
+<<<<<<< HEAD
         if (value.has("parameterValue")){
             parameterValue = value.getString("parameterValue");
         }else{
@@ -375,6 +388,18 @@ public class GraphConfiguration  {
         if (value.has("parameterName")){
             parameterName = value.getString("parameterName");
         }else{
+=======
+        if (value.has("parameterValue")) {
+            parameterValue = value.getString("parameterValue");
+        }
+        else{
+            parameterValue = null;
+        }
+        if (value.has("parameterName")) {
+            parameterName = value.getString("parameterName");
+        }
+        else{
+>>>>>>> 4787a01... Add possibility to configure graph by parameter value (cummulative commit)
             parameterName = null;
         }
 
@@ -509,9 +534,15 @@ public class GraphConfiguration  {
                 + buildCount + SEPARATOR
                 + dayCount + SEPARATOR
                 + graphType.getId() + SEPARATOR
+<<<<<<< HEAD
                 + serializeBoolean(useBuildDate)+SEPARATOR
                 + ((parameterName == null)?"":parameterName) + SEPARATOR
                 + ((parameterValue == null)?"":parameterValue) + SEPARATOR;
+=======
+                + serializeBoolean(useBuildDate) + SEPARATOR
+                + ((parameterName == null) ? "" : parameterName) + SEPARATOR
+                + ((parameterValue == null) ? "" : parameterValue) + SEPARATOR;
+>>>>>>> 4787a01... Add possibility to configure graph by parameter value (cummulative commit)
     }
 
     /**
@@ -548,6 +579,7 @@ public class GraphConfiguration  {
      *            the parameter value
      * @return <code>true</code> if the configuration parameters are valid,
      *         <code>false</code> otherwise.
+     * @since 1.73
      */
     //CHECKSTYLE:OFF
     protected static boolean isValid(final int newWidth, final int newHeight,
@@ -696,7 +728,11 @@ public class GraphConfiguration  {
      *
      * @return the parameter name
      */
+<<<<<<< HEAD
     public String getParameterName(){
+=======
+    public String getParameterName() {
+>>>>>>> 4787a01... Add possibility to configure graph by parameter value (cummulative commit)
         return parameterName;
     }
     /**
@@ -704,7 +740,11 @@ public class GraphConfiguration  {
      *
      * @return the parameter value
      */
+<<<<<<< HEAD
     public String getParameterValue(){
+=======
+    public String getParameterValue() {
+>>>>>>> 4787a01... Add possibility to configure graph by parameter value (cummulative commit)
         return parameterValue;
     }
     /**
@@ -738,7 +778,11 @@ public class GraphConfiguration  {
     public String toString() {
         return "type: " + graphType + ", size: " + width + "x" + height
                 + ", # builds " + buildCount + ", # days " + dayCount + ", useBuildDate:" + useBuildDate
+<<<<<<< HEAD
                 +",parameterName:"+parameterName+",parameterValue:"+parameterValue;
+=======
+                + ",parameterName:" + parameterName + ",parameterValue:" + parameterValue;
+>>>>>>> 4787a01... Add possibility to configure graph by parameter value (cummulative commit)
     }
 
     /**
@@ -797,8 +841,13 @@ public class GraphConfiguration  {
         result = prime * result + height;
         result = prime * result + (useBuildDate ? 1231 : 1237);
         result = prime * result + width;
+<<<<<<< HEAD
         result = prime * result + ((parameterName == null)?0:parameterName.hashCode());
         result = prime * result + ((parameterValue == null)?0:parameterValue.hashCode());
+=======
+        result = prime * result + ((parameterName == null) ? 0 : parameterName.hashCode());
+        result = prime * result + ((parameterValue == null) ? 0 : parameterValue.hashCode());
+>>>>>>> 4787a01... Add possibility to configure graph by parameter value (cummulative commit)
         return result;
     }
     // CHECKSTYLE:ON
@@ -840,22 +889,40 @@ public class GraphConfiguration  {
         if (width != other.width) {
             return false;
         }
+<<<<<<< HEAD
         if (parameterName == null){
             if (other.parameterName!=null){
                 return false;
             }
         }else{
             if (parameterName.equals(other.parameterName)){
+=======
+        if (parameterName == null) {
+            if (other.parameterName!=null) {
+                return false;
+            }
+        }else{
+            if (parameterName.equals(other.parameterName)) {
+>>>>>>> 4787a01... Add possibility to configure graph by parameter value (cummulative commit)
                 return false;
             }
         }
 
+<<<<<<< HEAD
         if (parameterValue == null){
             if (other.parameterValue!=null){
                 return false;
             }
         }else{
             if (parameterValue.equals(other.parameterValue)){
+=======
+        if (parameterValue == null) {
+            if (other.parameterValue!=null) {
+                return false;
+            }
+        }else{
+            if (parameterValue.equals(other.parameterValue)) {
+>>>>>>> 4787a01... Add possibility to configure graph by parameter value (cummulative commit)
                 return false;
             }
         }

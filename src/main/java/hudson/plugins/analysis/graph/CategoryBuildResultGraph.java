@@ -214,7 +214,11 @@ public abstract class CategoryBuildResultGraph extends BuildResultGraph {
             if (isBuildTooOld(configuration, current)) {
                 break;
             }
+<<<<<<< HEAD
             if (passesFilteringByParameter(current.getOwner(), parameterName, parameterValue)){
+=======
+            if (passesFilteringByParameter(current.getOwner(), parameterName, parameterValue)) {
+>>>>>>> 4787a01... Add possibility to configure graph by parameter value (cummulative commit)
                 valuesPerBuild.put(current.getOwner(), computeSeries(current));
             }
 
@@ -237,6 +241,7 @@ public abstract class CategoryBuildResultGraph extends BuildResultGraph {
         }
         return valuesPerBuild;
     }
+<<<<<<< HEAD
     private boolean passesFilteringByParameter(final AbstractBuild<?, ?> build, final String parameterName, final String parameterValue){
         if (parameterName == null){
             return true;
@@ -244,6 +249,21 @@ public abstract class CategoryBuildResultGraph extends BuildResultGraph {
         Map<String, String> vars = build.getBuildVariables();
         if(vars.containsKey(parameterName)){
             if (vars.get(parameterName).equals(parameterValue)) {
+=======
+    private boolean passesFilteringByParameter(final AbstractBuild<?, ?> build, final String parameterName, final String parameterValue) {
+        if (parameterName == null){
+            return true;
+        }
+
+        Map<String, String> vars = build.getBuildVariables();
+        if (vars == null) {
+            return false;
+        }
+
+        if(vars.containsKey(parameterName)) {
+            String pv = vars.get(parameterName);
+            if (pv != null && pv.equals(parameterValue)) {
+>>>>>>> 4787a01... Add possibility to configure graph by parameter value (cummulative commit)
                 return true;
             }
         }
